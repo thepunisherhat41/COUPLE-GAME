@@ -1,0 +1,11 @@
+{
+  "name": "Couple Game",
+  "short_name": "Couple Game",
+  "description": "Conexão, disputa e micos para casais e amigos.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0c0911",
+  "theme_color": "#120b18",
+  "lang": "pt-BR",
+  "categories": ["games", "entertainment", "lifestyle"]
+}
