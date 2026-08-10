@@ -1,9 +1,10 @@
 const CATEGORY_VISUALS = [
-  { match: /bdsm|domina|submiss|bondage|impacto|aftercare|limites bdsm/i, icon: '⛓️', label: 'BDSM', theme: 'erotic' },
+  { match: /⚡ desafio|desafio/i, icon: '⚡', label: 'Desafio', theme: 'erotic' },
+  { match: /bdsm|domina|submiss|bondage|impacto|aftercare|limites bdsm/i, icon: '⛓️', label: 'Intensidade', theme: 'erotic' },
   { match: /fetiche/i, icon: '😈', label: 'Fetiches', theme: 'hot' },
-  { match: /pornografia/i, icon: '🎞️', label: 'Pornografia', theme: 'erotic' },
+  { match: /pornografia/i, icon: '🎞️', label: 'Adulto', theme: 'erotic' },
   { match: /masturba/i, icon: '✨', label: 'Autoconhecimento', theme: 'erotic' },
-  { match: /orgasmo|prazer|desejo sexual|sexo oral|práticas|brinquedos|fantasia|intimidade|depois do sexo/i, icon: '🖤', label: 'Intimidade', theme: 'erotic' },
+  { match: /orgasmo|prazer|desejo sexual|sexo oral|práticas|brinquedos|fantasia|intimidade|depois do sexo|sexo 18/i, icon: '❤️‍🔥', label: 'Sexo', theme: 'erotic' },
   { match: /romance|carinho|afeto|amor|encontro|admiração|memórias|gratidão|história/i, icon: '💌', label: 'Conexão', theme: 'romance' },
   { match: /vulnerabilidade|sentimentos|medos|confiança|perdão|futuro|valores|crescimento|comunicação|compromisso|identidade/i, icon: '🌙', label: 'Profundidade', theme: 'deep' },
   { match: /música/i, icon: '🎵', label: 'Música', theme: 'trivia' },
@@ -23,7 +24,7 @@ function resolveVisual(card) {
   const found = CATEGORY_VISUALS.find((item) => item.match.test(combined));
   if (found) return found;
 
-  if (/erótica/i.test(badge)) return { icon: '🖤', label: 'Erótica', theme: 'erotic' };
+  if (/sexo/i.test(badge)) return { icon: '❤️‍🔥', label: 'Sexo', theme: 'erotic' };
   if (/quente|picante|sem tabu/i.test(badge)) return { icon: '🔥', label: 'Quente', theme: 'hot' };
   if (/profundo/i.test(badge)) return { icon: '🌙', label: 'Profundo', theme: 'deep' };
   if (/romântico|leve/i.test(badge)) return { icon: '💗', label: 'Romântico', theme: 'romance' };
