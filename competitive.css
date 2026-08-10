@@ -1,0 +1,158 @@
+.competitive-settings-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  align-items: end;
+}
+
+.competitive-rule-note,
+.power-summary {
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 14px;
+  padding: 14px 16px;
+  background: rgba(255,255,255,.04);
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.power-summary {
+  display: grid;
+  gap: 4px;
+}
+
+.power-summary strong { color: var(--text); }
+.power-summary span { color: #f1d7ff; }
+.power-summary small { color: var(--muted); }
+
+.party-player-row {
+  grid-template-columns: auto minmax(120px, 1fr) minmax(115px, .42fr) auto;
+}
+
+.team-select { min-width: 115px; }
+
+.competitive-scoreboard {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.life-score-card.is-eliminated,
+.team-score-card.is-eliminated,
+.competitive-result-card.is-eliminated {
+  opacity: .48;
+  filter: grayscale(.55);
+}
+
+.team-score-card {
+  min-width: 210px;
+}
+
+.team-member-lives {
+  display: grid;
+  gap: 4px;
+  margin-top: 8px;
+  font-size: .72rem;
+  color: var(--muted);
+}
+
+.team-member-lives span.is-eliminated {
+  text-decoration: line-through;
+  opacity: .58;
+}
+
+.life-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: rgba(255,255,255,.05);
+  font-size: .78rem;
+  color: #ffd9e7;
+}
+
+.power-panel {
+  margin: 18px 0 4px;
+  padding: 14px;
+  border: 1px solid rgba(191,98,255,.24);
+  border-radius: 16px;
+  background: rgba(191,98,255,.055);
+}
+
+.power-panel .kicker { margin-bottom: 10px; }
+
+.power-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.power-button {
+  min-height: 84px;
+  display: grid;
+  gap: 5px;
+  text-align: left;
+  padding: 12px;
+  border: 1px solid rgba(255,255,255,.11);
+  border-radius: 13px;
+  background: rgba(255,255,255,.055);
+  color: var(--text);
+}
+
+.power-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: rgba(191,98,255,.45);
+}
+
+.power-button strong { font-size: .92rem; }
+.power-button small { color: var(--muted); line-height: 1.35; }
+.power-button:disabled { cursor: not-allowed; opacity: .42; }
+.power-button.is-used { opacity: .3; }
+.power-rule { display: block; margin-top: 9px; color: var(--muted); }
+
+.answer-button.is-power-removed {
+  opacity: .22;
+  text-decoration: line-through;
+}
+
+.competitive-result-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin: 24px 0;
+}
+
+.competitive-result-card {
+  display: grid;
+  gap: 5px;
+  padding: 15px;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 14px;
+  background: rgba(255,255,255,.04);
+}
+
+.competitive-result-card.is-winner {
+  border-color: rgba(96,255,180,.34);
+  background: rgba(96,255,180,.055);
+}
+
+.result-position {
+  font-size: .72rem;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+@media (max-width: 760px) {
+  .competitive-settings-grid,
+  .power-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .party-player-row {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .party-player-row .team-select {
+    grid-column: 2 / 3;
+    width: 100%;
+  }
+}
