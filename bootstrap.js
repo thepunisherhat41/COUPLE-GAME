@@ -8,6 +8,8 @@ import { extraHotCoupleQuestions } from './questions/couple-hot.js';
 import { directAdultCoupleQuestions } from './questions/couple-adult-direct.js';
 import { extraRomanticCoupleQuestions } from './questions/couple-romantic-extra.js';
 import { extraDeepCoupleQuestions } from './questions/couple-deep-extra.js';
+import { decorateHotQuestions } from './questions/couple-hot-stages.js';
+import { installCoupleProgressiveEngine } from './couple-progressive-engine.js';
 
 const popularTriviaQuestions = [
   ...popularEasy,
@@ -38,7 +40,10 @@ for (const question of extraCoupleQuestions) {
   }
 }
 
-// Mantém o motor do jogo original, mas substitui integralmente o baralho antigo de trivia.
+// Classifica as 100 perguntas adultas em uma progressão real de intensidade.
+decorateHotQuestions(coupleQuestions);
+
+// Mantém o motor original para as salas competitivas, usando o banco popular ampliado.
 triviaQuestions.splice(0, triviaQuestions.length, ...popularTriviaQuestions);
 
 // Após uma resposta de trivia, acrescenta uma curiosidade curta sem interferir no placar.
@@ -65,58 +70,8 @@ document.addEventListener('click', (event) => {
   });
 });
 
+// app.js continua responsável por Duelo e Galera.
 await import('./app.js');
 
-function enhanceCoupleSetup() {
-  const intensitySelector = document.querySelector('#intensity-selector');
-  const hotButton = intensitySelector?.querySelector('[data-intensity="quente"]');
-
-  if (hotButton) {
-    const label = hotButton.querySelector('span');
-    const hint = hotButton.querySelector('small');
-    if (label && label.textContent !== '🔥 Quente 18+') label.textContent = '🔥 Quente 18+';
-    if (hint && hint.textContent !== 'sexo, fetiches e fantasias') hint.textContent = 'sexo, fetiches e fantasias';
-  }
-
-  const countSelect = document.querySelector('#couple-count');
-  if (countSelect) {
-    const options = [
-      ['20', '20 perguntas'],
-      ['30', '30 perguntas'],
-      ['40', '40 perguntas']
-    ];
-    for (const [value, label] of options) {
-      if (!countSelect.querySelector(`option[value="${value}"]`)) {
-        const option = document.createElement('option');
-        option.value = value;
-        option.textContent = label;
-        countSelect.append(option);
-      }
-    }
-  }
-
-  const intensityField = intensitySelector?.closest('.field-full');
-  if (intensityField && !document.querySelector('#adult-mode-note')) {
-    const note = document.createElement('div');
-    note.id = 'adult-mode-note';
-    note.setAttribute('role', 'note');
-    note.textContent = '🔞 O modo Quente contém perguntas adultas sobre sexo, fetiches e fantasias. Use apenas entre adultos, com consentimento, e troque qualquer pergunta que gere desconforto.';
-    note.style.marginTop = '12px';
-    note.style.padding = '12px 14px';
-    note.style.border = '1px solid rgba(255, 79, 145, 0.28)';
-    note.style.borderRadius = '12px';
-    note.style.background = 'rgba(255, 79, 145, 0.07)';
-    note.style.color = 'var(--muted)';
-    note.style.fontSize = '0.82rem';
-    note.style.lineHeight = '1.5';
-    intensityField.append(note);
-  }
-}
-
-const setupRoot = document.querySelector('#setup-content');
-if (setupRoot) {
-  const setupObserver = new MutationObserver(enhanceCoupleSetup);
-  setupObserver.observe(setupRoot, { childList: true, subtree: true });
-}
-
-enhanceCoupleSetup();
+// A Sala 01 usa o novo motor progressivo e intercepta apenas o botão Entre Nós.
+installCoupleProgressiveEngine(coupleQuestions);
