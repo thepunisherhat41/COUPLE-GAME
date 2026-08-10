@@ -72,7 +72,7 @@ export function installCoupleExperienceEngine(coupleQuestions) {
     leve: { label: '🌷 Romântico', hint: 'carinho, memórias e conexão' },
     profundo: { label: '🌙 Profundo', hint: 'sentimentos, vulnerabilidade e futuro' },
     quente: { label: '🔥 Quente 18+', hint: 'provocação, fantasias e fetiches' },
-    erotico: { label: '🖤 Erótica 18+', hint: 'conversas profundas sobre sexo' }
+    erotico: { label: '🖤 Hot 18+', hint: 'perguntas surpresa para adultos' }
   };
 
   function showToast(message) {
@@ -94,7 +94,7 @@ export function installCoupleExperienceEngine(coupleQuestions) {
   }
 
   function modeLabel(config) {
-    if (config.intensity === 'erotico') return '🖤 Erótica 18+';
+    if (config.intensity === 'erotico') return '🖤 Hot 18+';
     if (config.intensity === 'leve') return '🌷 Romântico';
     if (config.intensity === 'profundo') return '🌙 Profundo';
     if (config.hotMode === 'progressivo') return '⚡ Quente Progressivo 18+';
@@ -107,6 +107,7 @@ export function installCoupleExperienceEngine(coupleQuestions) {
   }
 
   function allowedCounts() {
+    if (selectedIntensity === 'erotico') return [10, 20, 30, 40, 50, 60];
     if (selectedIntensity === 'quente' && selectedHotMode !== 'progressivo') return [7, 10, 14, 20, 30];
     return [7, 10, 14, 20, 30, 40];
   }
@@ -120,8 +121,8 @@ export function installCoupleExperienceEngine(coupleQuestions) {
     setupContent.querySelectorAll('[data-hot-mode]').forEach((button) => {
       button.classList.toggle('is-selected', button.dataset.hotMode === selectedHotMode);
     });
-    const eroticNote = setupContent.querySelector('#erotic-note');
-    if (eroticNote) eroticNote.hidden = selectedIntensity !== 'erotico';
+    const surpriseNote = setupContent.querySelector('#hot-surprise-note');
+    if (surpriseNote) surpriseNote.hidden = selectedIntensity !== 'erotico';
     const count = setupContent.querySelector('#couple-count-v3');
     if (count) {
       const previous = Number(count.value) || 10;
@@ -149,7 +150,7 @@ export function installCoupleExperienceEngine(coupleQuestions) {
       createElement('span', 'room-icon', '💞'),
       createElement('p', 'kicker', 'SALA 01 · ENTRE NÓS'),
       createElement('h1', '', 'Da conexão à conversa que vocês nunca tiveram.'),
-      createElement('p', '', 'Escolham o tipo de conversa. A nova seção Erótica é separada do Quente e aprofunda temas reais da vida sexual do casal.')
+      createElement('p', '', 'Escolham a vibe. No modo Hot, os temas ficam escondidos até cada carta aparecer.')
     );
     setupContent.append(header);
 
@@ -172,7 +173,7 @@ export function installCoupleExperienceEngine(coupleQuestions) {
           <button class="hot-mode-card" type="button" data-hot-mode="semtabu"><strong>🖤 Sem Tabu</strong><span>${hotStageDescriptions.semtabu}</span><small>Os assuntos adultos mais diretos do Quente.</small></button>
         </div>
       </div>
-      <div class="field-full adult-consent-note" id="erotic-note" hidden>🖤 <strong>Erótica 18+</strong>: perguntas profundas sobre sexo, prazer, orgasmo, frequência, práticas, brinquedos, pornografia, masturbação, fetiches, terceiros, exclusividade e limites. Não é desafio sexual: é conversa.</div>
+      <div class="field-full adult-consent-note" id="hot-surprise-note" hidden>🖤 <strong>Hot 18+</strong>: os temas não são revelados antes da hora. Cada carta é uma surpresa e qualquer pergunta pode ser trocada sem precisar justificar.</div>
       <div class="field-full"><label for="couple-count-v3">Perguntas nesta sessão</label><select class="select" id="couple-count-v3"></select></div>
     `;
     setupContent.append(form);
@@ -269,7 +270,7 @@ export function installCoupleExperienceEngine(coupleQuestions) {
 
     const footer = createElement('div', 'question-footer');
     footer.append(createElement('div', 'feedback', config.intensity === 'erotico'
-      ? 'Conversem sem transformar preferência em obrigação. Discordar também é uma resposta válida.'
+      ? 'Sem obrigação de responder tudo. “Trocar” continua sendo uma resposta válida.'
       : config.intensity === 'quente'
         ? 'Respondam apenas o que quiserem. “Não quero” e “trocar” continuam válidos.'
         : 'Conversem no tempo de vocês.'));
@@ -307,7 +308,7 @@ export function installCoupleExperienceEngine(coupleQuestions) {
     resultContent.append(
       createElement('div', 'result-icon', state.config.intensity === 'erotico' ? '🖤' : state.config.intensity === 'quente' ? '🔥' : '💗'),
       createElement('p', 'kicker', 'SESSÃO CONCLUÍDA'),
-      createElement('h1', '', state.config.intensity === 'erotico' ? 'Conversa sem atalhos.' : 'Boa conversa.'),
+      createElement('h1', '', state.config.intensity === 'erotico' ? 'Vocês encararam o Hot.' : 'Boa conversa.'),
       createElement('p', '', `${state.config.names[0]} e ${state.config.names[1]} concluíram ${state.config.count} perguntas em ${modeLabel(state.config)}.`)
     );
     const row = createElement('div', 'button-row');
