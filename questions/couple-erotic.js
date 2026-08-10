@@ -38,5 +38,26 @@ export const eroticCoupleQuestions = [
   { id: 'c-e-37', intensity: 'erotico', category: 'Limites', text: 'Existe algum limite sexual que mudou ao longo da sua vida e que hoje você enxerga de outra forma?' },
   { id: 'c-e-38', intensity: 'erotico', category: 'Limites', text: 'Que tipo de conversa precisa acontecer antes de você se sentir seguro(a) para experimentar algo sexual novo?' },
   { id: 'c-e-39', intensity: 'erotico', category: 'Depois do sexo', text: 'O que você mais precisa emocionalmente depois do sexo: carinho, conversa, espaço, humor, descanso ou outra coisa?' },
-  { id: 'c-e-40', intensity: 'erotico', category: 'Intimidade', text: 'O que você gostaria que nossa vida sexual tivesse mais daqui para frente: liberdade, novidade, frequência, profundidade, segurança ou espontaneidade?' }
+  { id: 'c-e-40', intensity: 'erotico', category: 'Intimidade', text: 'O que você gostaria que nossa vida sexual tivesse mais daqui para frente: liberdade, novidade, frequência, profundidade, segurança ou espontaneidade?' },
+
+  { id: 'c-e-41', intensity: 'erotico', category: 'BDSM', text: 'Dentro de uma dinâmica BDSM, você sente mais curiosidade em assumir o controle, entregar o controle ou alternar entre os dois papéis?' },
+  { id: 'c-e-42', intensity: 'erotico', category: 'BDSM', text: 'A ideia de bondage ou restrições consensuais desperta curiosidade em você? Quais condições fariam isso parecer seguro e confortável?' },
+  { id: 'c-e-43', intensity: 'erotico', category: 'BDSM', text: 'Vendas nos olhos ou outras formas leves de limitar os sentidos aumentariam sua curiosidade ou causariam desconforto?' },
+  { id: 'c-e-44', intensity: 'erotico', category: 'BDSM', text: 'Você teria interesse em uma dinâmica baseada em comandos e obediência consensual? O que faria isso funcionar para você?' },
+  { id: 'c-e-45', intensity: 'erotico', category: 'BDSM', text: 'Como você se sente sobre usar regras ou pequenos protocolos combinados durante uma brincadeira de dominação e submissão?' },
+  { id: 'c-e-46', intensity: 'erotico', category: 'BDSM', text: 'A ideia de recompensa e punição consensuais dentro de uma fantasia BDSM te interessa, não te interessa ou depende muito do contexto?' },
+  { id: 'c-e-47', intensity: 'erotico', category: 'BDSM', text: 'Você teria curiosidade sobre impacto físico consensual em intensidade leve ou moderada? Que limites seriam indispensáveis?' },
+  { id: 'c-e-48', intensity: 'erotico', category: 'BDSM', text: 'Existe alguma palavra, atitude ou dinâmica de autoridade que te faria entrar mais facilmente em um papel dominante ou submisso?' },
+  { id: 'c-e-49', intensity: 'erotico', category: 'BDSM', text: 'Elogios intensos durante uma dinâmica de poder te atraem mais do que provocações ou linguagem de humilhação consensual?' },
+  { id: 'c-e-50', intensity: 'erotico', category: 'BDSM', text: 'Humilhação consensual é algo que desperta curiosidade, é um limite absoluto ou depende muito da forma e do contexto?' },
+  { id: 'c-e-51', intensity: 'erotico', category: 'BDSM', text: 'Que diferença existe, para você, entre uma fantasia de controle excitante e uma situação que começaria a parecer desconfortável?' },
+  { id: 'c-e-52', intensity: 'erotico', category: 'BDSM', text: 'Quais seriam seus limites rígidos e quais seriam seus limites negociáveis em uma experiência BDSM?' },
+  { id: 'c-e-53', intensity: 'erotico', category: 'BDSM', text: 'Você preferiria combinar uma escala de intensidade antes de uma experiência BDSM para poder ajustar o ritmo durante a brincadeira?' },
+  { id: 'c-e-54', intensity: 'erotico', category: 'BDSM', text: 'Além de uma palavra de segurança, que outro sinal ou gesto seria útil para comunicar “diminua”, “continue” ou “pare”?' },
+  { id: 'c-e-55', intensity: 'erotico', category: 'BDSM', text: 'Que tipo de aftercare faria você se sentir cuidado(a) depois de uma experiência emocionalmente ou fisicamente mais intensa?' },
+  { id: 'c-e-56', intensity: 'erotico', category: 'BDSM', text: 'Você gostaria de conversar depois de uma experiência BDSM para dizer o que funcionou, o que não funcionou e o que deveria mudar?' },
+  { id: 'c-e-57', intensity: 'erotico', category: 'BDSM', text: 'Uma dinâmica de poder só durante o sexo te interessa mais do que manter pequenos elementos dessa dinâmica fora do momento íntimo?' },
+  { id: 'c-e-58', intensity: 'erotico', category: 'BDSM', text: 'Usar roupas, acessórios ou símbolos para marcar uma dinâmica dominante/submissa teria significado ou graça para você?' },
+  { id: 'c-e-59', intensity: 'erotico', category: 'BDSM', text: 'Qual aspecto do BDSM você mais gostaria de entender antes de decidir se quer experimentar: controle, bondage, impacto, linguagem, regras ou aftercare?' },
+  { id: 'c-e-60', intensity: 'erotico', category: 'BDSM', text: 'Se criássemos uma primeira experiência BDSM bem leve e totalmente negociada, o que precisaria acontecer para você se sentir confiante para dizer sim ou não?' }
 ];
