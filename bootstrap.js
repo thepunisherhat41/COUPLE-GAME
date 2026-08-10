@@ -5,6 +5,9 @@ import { popularHardA } from './questions/popular-hard-a.js';
 import { popularHardB } from './questions/popular-hard-b.js';
 import { triviaCorrections } from './questions/corrections.js';
 import { extraHotCoupleQuestions } from './questions/couple-hot.js';
+import { directAdultCoupleQuestions } from './questions/couple-adult-direct.js';
+import { extraRomanticCoupleQuestions } from './questions/couple-romantic-extra.js';
+import { extraDeepCoupleQuestions } from './questions/couple-deep-extra.js';
 
 const popularTriviaQuestions = [
   ...popularEasy,
@@ -18,10 +21,17 @@ for (const question of popularTriviaQuestions) {
   if (correction) Object.assign(question, correction);
 }
 
-// Amplia o modo Quente sem alterar os modos Leve e Profundo.
-// O motor continua sorteando perguntas sem repetição enquanto houver perguntas no baralho.
+// Expande os três níveis do modo Entre Nós.
+// O baralho final fica com 40 perguntas leves, 40 profundas e 100 quentes/adultas.
+const extraCoupleQuestions = [
+  ...extraRomanticCoupleQuestions,
+  ...extraDeepCoupleQuestions,
+  ...extraHotCoupleQuestions,
+  ...directAdultCoupleQuestions
+];
+
 const existingCoupleIds = new Set(coupleQuestions.map((question) => question.id));
-for (const question of extraHotCoupleQuestions) {
+for (const question of extraCoupleQuestions) {
   if (!existingCoupleIds.has(question.id)) {
     coupleQuestions.push(question);
     existingCoupleIds.add(question.id);
@@ -29,10 +39,9 @@ for (const question of extraHotCoupleQuestions) {
 }
 
 // Mantém o motor do jogo original, mas substitui integralmente o baralho antigo de trivia.
-// Como arrays importados são objetos mutáveis, app.js recebe a mesma instância já atualizada.
 triviaQuestions.splice(0, triviaQuestions.length, ...popularTriviaQuestions);
 
-// Após uma resposta, acrescenta uma curiosidade curta sem interferir no placar.
+// Após uma resposta de trivia, acrescenta uma curiosidade curta sem interferir no placar.
 document.addEventListener('click', (event) => {
   const answerButton = event.target.closest?.('[data-answer-index]');
   if (!answerButton) return;
@@ -57,3 +66,57 @@ document.addEventListener('click', (event) => {
 });
 
 await import('./app.js');
+
+function enhanceCoupleSetup() {
+  const intensitySelector = document.querySelector('#intensity-selector');
+  const hotButton = intensitySelector?.querySelector('[data-intensity="quente"]');
+
+  if (hotButton) {
+    const label = hotButton.querySelector('span');
+    const hint = hotButton.querySelector('small');
+    if (label && label.textContent !== '🔥 Quente 18+') label.textContent = '🔥 Quente 18+';
+    if (hint && hint.textContent !== 'sexo, fetiches e fantasias') hint.textContent = 'sexo, fetiches e fantasias';
+  }
+
+  const countSelect = document.querySelector('#couple-count');
+  if (countSelect) {
+    const options = [
+      ['20', '20 perguntas'],
+      ['30', '30 perguntas'],
+      ['40', '40 perguntas']
+    ];
+    for (const [value, label] of options) {
+      if (!countSelect.querySelector(`option[value="${value}"]`)) {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = label;
+        countSelect.append(option);
+      }
+    }
+  }
+
+  const intensityField = intensitySelector?.closest('.field-full');
+  if (intensityField && !document.querySelector('#adult-mode-note')) {
+    const note = document.createElement('div');
+    note.id = 'adult-mode-note';
+    note.setAttribute('role', 'note');
+    note.textContent = '🔞 O modo Quente contém perguntas adultas sobre sexo, fetiches e fantasias. Use apenas entre adultos, com consentimento, e troque qualquer pergunta que gere desconforto.';
+    note.style.marginTop = '12px';
+    note.style.padding = '12px 14px';
+    note.style.border = '1px solid rgba(255, 79, 145, 0.28)';
+    note.style.borderRadius = '12px';
+    note.style.background = 'rgba(255, 79, 145, 0.07)';
+    note.style.color = 'var(--muted)';
+    note.style.fontSize = '0.82rem';
+    note.style.lineHeight = '1.5';
+    intensityField.append(note);
+  }
+}
+
+const setupRoot = document.querySelector('#setup-content');
+if (setupRoot) {
+  const setupObserver = new MutationObserver(enhanceCoupleSetup);
+  setupObserver.observe(setupRoot, { childList: true, subtree: true });
+}
+
+enhanceCoupleSetup();
