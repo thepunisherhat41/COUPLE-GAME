@@ -1,11 +1,11 @@
 {
   "name": "couple-game",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "description": "Party game para casais, amigos e solteiros.",
   "scripts": {
-    "test": "node --check app.js && node scripts/validate-data.mjs"
+    "test": "node --check app.js && node --check bootstrap.js && node scripts/validate-data.mjs && node scripts/validate-popular-data.mjs"
   },
   "engines": {
     "node": ">=20"
