@@ -3,6 +3,7 @@ import { popularEasy } from './questions/popular-easy.js';
 import { popularMedium } from './questions/popular-medium.js';
 import { popularHardA } from './questions/popular-hard-a.js';
 import { popularHardB } from './questions/popular-hard-b.js';
+import { triviaCorrections } from './questions/corrections.js';
 
 const popularTriviaQuestions = [
   ...popularEasy,
@@ -10,6 +11,11 @@ const popularTriviaQuestions = [
   ...popularHardA,
   ...popularHardB
 ];
+
+for (const question of popularTriviaQuestions) {
+  const correction = triviaCorrections[question.id];
+  if (correction) Object.assign(question, correction);
+}
 
 // Mantém o motor do jogo original, mas substitui integralmente o baralho antigo.
 // Como arrays importados são objetos mutáveis, app.js recebe a mesma instância já atualizada.
