@@ -8,8 +8,22 @@ import { extraHotCoupleQuestions } from './questions/couple-hot.js';
 import { directAdultCoupleQuestions } from './questions/couple-adult-direct.js';
 import { extraRomanticCoupleQuestions } from './questions/couple-romantic-extra.js';
 import { extraDeepCoupleQuestions } from './questions/couple-deep-extra.js';
+import { eroticCoupleQuestions } from './questions/couple-erotic.js';
 import { decorateHotQuestions } from './questions/couple-hot-stages.js';
-import { installCoupleProgressiveEngine } from './couple-progressive-engine.js';
+import { installCoupleExperienceEngine } from './couple-experience-engine.js';
+import { installCompetitiveEngine } from './competitive-engine.js';
+
+function ensureStylesheet(id, relativePath) {
+  if (document.querySelector(`#${id}`)) return;
+  const link = document.createElement('link');
+  link.id = id;
+  link.rel = 'stylesheet';
+  link.href = new URL(relativePath, import.meta.url).href;
+  document.head.append(link);
+}
+
+ensureStylesheet('couple-progressive-styles', './couple-progressive.css');
+ensureStylesheet('competitive-styles', './competitive.css');
 
 const popularTriviaQuestions = [
   ...popularEasy,
@@ -23,13 +37,12 @@ for (const question of popularTriviaQuestions) {
   if (correction) Object.assign(question, correction);
 }
 
-// Expande os três níveis do modo Entre Nós.
-// O baralho final fica com 40 perguntas leves, 40 profundas e 100 quentes/adultas.
 const extraCoupleQuestions = [
   ...extraRomanticCoupleQuestions,
   ...extraDeepCoupleQuestions,
   ...extraHotCoupleQuestions,
-  ...directAdultCoupleQuestions
+  ...directAdultCoupleQuestions,
+  ...eroticCoupleQuestions
 ];
 
 const existingCoupleIds = new Set(coupleQuestions.map((question) => question.id));
@@ -40,38 +53,15 @@ for (const question of extraCoupleQuestions) {
   }
 }
 
-// Classifica as 100 perguntas adultas em uma progressão real de intensidade.
+// Quente mantém a progressão Picante → Fetiches → Sem Tabu.
 decorateHotQuestions(coupleQuestions);
 
-// Mantém o motor original para as salas competitivas, usando o banco popular ampliado.
+// Salas competitivas usam integralmente o banco popular ampliado.
 triviaQuestions.splice(0, triviaQuestions.length, ...popularTriviaQuestions);
 
-// Após uma resposta de trivia, acrescenta uma curiosidade curta sem interferir no placar.
-document.addEventListener('click', (event) => {
-  const answerButton = event.target.closest?.('[data-answer-index]');
-  if (!answerButton) return;
-
-  queueMicrotask(() => {
-    const prompt = document.querySelector('.question-text')?.textContent?.trim();
-    const feedback = document.querySelector('#answer-feedback');
-    if (!prompt || !feedback || feedback.dataset.factAdded === 'true') return;
-
-    const question = triviaQuestions.find((item) => item.prompt === prompt);
-    if (!question?.fact) return;
-
-    const fact = document.createElement('span');
-    fact.textContent = `💡 ${question.fact}`;
-    fact.style.display = 'block';
-    fact.style.marginTop = '8px';
-    fact.style.color = 'var(--muted)';
-    fact.style.lineHeight = '1.5';
-    feedback.append(fact);
-    feedback.dataset.factAdded = 'true';
-  });
-});
-
-// app.js continua responsável por Duelo e Galera.
+// Mantém o motor legado carregado para utilidades e compatibilidade; os três botões de sala
+// são interceptados pelos motores especializados instalados abaixo.
 await import('./app.js');
 
-// A Sala 01 usa o novo motor progressivo e intercepta apenas o botão Entre Nós.
-installCoupleProgressiveEngine(coupleQuestions);
+installCoupleExperienceEngine(coupleQuestions);
+installCompetitiveEngine(triviaQuestions);
