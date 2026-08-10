@@ -9,7 +9,7 @@ function assert(condition, message) {
   }
 }
 
-assert(eroticCoupleQuestions.length === 40, `Esperadas 40 perguntas Eróticas; encontradas ${eroticCoupleQuestions.length}`);
+assert(eroticCoupleQuestions.length === 60, `Esperadas 60 perguntas Eróticas; encontradas ${eroticCoupleQuestions.length}`);
 const ids = new Set();
 for (const question of eroticCoupleQuestions) {
   assert(question.intensity === 'erotico', `Intensidade inválida em ${question.id}`);
@@ -19,6 +19,9 @@ for (const question of eroticCoupleQuestions) {
   ids.add(question.id);
 }
 
+const bdsmQuestions = eroticCoupleQuestions.filter((question) => question.category === 'BDSM');
+assert(bdsmQuestions.length === 22, `Esperadas 22 perguntas BDSM; encontradas ${bdsmQuestions.length}`);
+
 assert(COMPETITIVE_RULES.minLives >= 3, 'O mínimo de vidas precisa ser pelo menos 3');
 assert(COMPETITIVE_RULES.maxPartyPlayers === 16, 'Sala 3 precisa aceitar até 16 jogadores');
 assert(COMPETITIVE_RULES.maxCouples === 6, 'Sala 2 precisa aceitar até 6 casais');
@@ -26,7 +29,8 @@ assert(POWER_DEFINITIONS.length === 3, `Esperados exatamente 3 poderes; encontra
 assert(new Set(POWER_DEFINITIONS.map((power) => power.id)).size === 3, 'IDs dos poderes precisam ser únicos');
 
 if (failed) process.exit(1);
-console.log('✓ 40 perguntas na seção Erótica');
+console.log('✓ 60 perguntas na seção Erótica');
+console.log('✓ 22 perguntas BDSM validadas');
 console.log('✓ mínimo de 3 vidas validado');
 console.log('✓ Sala 3: até 16 jogadores');
 console.log('✓ Sala 2: até 6 casais');
