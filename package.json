@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Party game para casais, amigos e solteiros.",
   "scripts": {
-    "test": "node --check app.js && node --check bootstrap.js && node --check questions/corrections.js && node scripts/validate-data.mjs && node scripts/validate-popular-data.mjs"
+    "test": "node --check app.js && node --check bootstrap.js && node --check questions/corrections.js && node --check questions/couple-hot.js && node scripts/validate-data.mjs && node scripts/validate-popular-data.mjs && node scripts/validate-couple-hot.mjs"
   },
   "engines": {
     "node": ">=20"
