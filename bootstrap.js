@@ -9,6 +9,7 @@ import { directAdultCoupleQuestions } from './questions/couple-adult-direct.js';
 import { extraRomanticCoupleQuestions } from './questions/couple-romantic-extra.js';
 import { extraDeepCoupleQuestions } from './questions/couple-deep-extra.js';
 import { eroticCoupleQuestions } from './questions/couple-erotic.js';
+import { sexChallengeCards } from './questions/couple-sex-challenges.js';
 import { decorateHotQuestions } from './questions/couple-hot-stages.js';
 import { installCoupleExperienceEngine } from './couple-experience-engine.js';
 import { installCompetitiveEngine } from './competitive-engine.js';
@@ -44,7 +45,8 @@ const extraCoupleQuestions = [
   ...extraDeepCoupleQuestions,
   ...extraHotCoupleQuestions,
   ...directAdultCoupleQuestions,
-  ...eroticCoupleQuestions
+  ...eroticCoupleQuestions,
+  ...sexChallengeCards
 ];
 
 const existingCoupleIds = new Set(coupleQuestions.map((question) => question.id));
@@ -55,14 +57,11 @@ for (const question of extraCoupleQuestions) {
   }
 }
 
-// Quente mantém a progressão Picante → Fetiches → Sem Tabu.
+// Quente mantém os estágios clássicos e ganha uma sessão Sexo separada dentro do próprio modo.
 decorateHotQuestions(coupleQuestions);
 
-// Salas competitivas usam integralmente o banco popular ampliado.
 triviaQuestions.splice(0, triviaQuestions.length, ...popularTriviaQuestions);
 
-// Mantém o motor legado carregado para utilidades e compatibilidade; os três botões de sala
-// são interceptados pelos motores especializados instalados abaixo.
 await import('./app.js');
 
 installCoupleExperienceEngine(coupleQuestions);
