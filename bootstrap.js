@@ -8,8 +8,8 @@ import { extraHotCoupleQuestions } from './questions/couple-hot.js';
 import { directAdultCoupleQuestions } from './questions/couple-adult-direct.js';
 import { extraRomanticCoupleQuestions } from './questions/couple-romantic-extra.js';
 import { extraDeepCoupleQuestions } from './questions/couple-deep-extra.js';
-import { eroticCoupleQuestions } from './questions/couple-erotic.js';
 import { sexChallengeCards } from './questions/couple-sex-challenges.js';
+import { userSexChallengeCards } from './questions/couple-sex-user-challenges.js';
 import { decorateHotQuestions } from './questions/couple-hot-stages.js';
 import { installCoupleExperienceEngine } from './couple-experience-engine.js';
 import { installCompetitiveEngine } from './competitive-engine.js';
@@ -45,8 +45,8 @@ const extraCoupleQuestions = [
   ...extraDeepCoupleQuestions,
   ...extraHotCoupleQuestions,
   ...directAdultCoupleQuestions,
-  ...eroticCoupleQuestions,
-  ...sexChallengeCards
+  ...sexChallengeCards,
+  ...userSexChallengeCards
 ];
 
 const existingCoupleIds = new Set(coupleQuestions.map((question) => question.id));
@@ -57,7 +57,7 @@ for (const question of extraCoupleQuestions) {
   }
 }
 
-// Quente mantém os estágios clássicos e ganha uma sessão Sexo separada dentro do próprio modo.
+// Quente mantém os estágios clássicos e ganha uma sessão Sexo composta só por desafios.
 decorateHotQuestions(coupleQuestions);
 
 triviaQuestions.splice(0, triviaQuestions.length, ...popularTriviaQuestions);
