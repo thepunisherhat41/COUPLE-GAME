@@ -53,6 +53,19 @@ function progressiveStage(index, count) {
   return 'semtabu';
 }
 
+function sexHeat(index, count) {
+  const ratio = index / Math.max(1, count);
+  if (ratio < 1 / 3) return 1;
+  if (ratio < 2 / 3) return 2;
+  return 3;
+}
+
+const SEX_HEAT_LABELS = Object.freeze({
+  1: '🔥 Aquecendo',
+  2: '❤️‍🔥 Provocando',
+  3: '😈 Intenso'
+});
+
 export function installCoupleExperienceEngine(coupleQuestions) {
   const setupContent = document.querySelector('#setup-content');
   const gameContent = document.querySelector('#game-content');
@@ -71,7 +84,7 @@ export function installCoupleExperienceEngine(coupleQuestions) {
   const intensityMeta = {
     leve: { label: '🌷 Romântico', hint: 'carinho, memórias e conexão' },
     profundo: { label: '🌙 Profundo', hint: 'sentimentos, vulnerabilidade e futuro' },
-    quente: { label: '🔥 Quente 18+', hint: 'do picante ao sexo sem rodeios' }
+    quente: { label: '🔥 Quente 18+', hint: 'escolha o nível depois de entrar' }
   };
 
   function showToast(message) {
@@ -102,7 +115,7 @@ export function installCoupleExperienceEngine(coupleQuestions) {
 
   function sessionStage(config, index) {
     if (config.intensity !== 'quente') return null;
-    if (config.hotMode === 'sexo') return 'sexo';
+    if (config.hotMode === 'sexo') return `sexo-${sexHeat(index, config.count)}`;
     return config.hotMode === 'progressivo' ? progressiveStage(index, config.count) : config.hotMode;
   }
 
@@ -117,24 +130,24 @@ export function installCoupleExperienceEngine(coupleQuestions) {
       button.classList.toggle('is-selected', button.dataset.coupleIntensity === selectedIntensity);
     });
 
-    const submodes = setupContent.querySelector('#hot-submode-field-v4');
+    const submodes = setupContent.querySelector('#hot-submode-field-v5');
     if (submodes) submodes.hidden = selectedIntensity !== 'quente';
 
     setupContent.querySelectorAll('[data-hot-mode]').forEach((button) => {
       button.classList.toggle('is-selected', button.dataset.hotMode === selectedHotMode);
     });
 
-    const sexNote = setupContent.querySelector('#sex-session-note');
-    if (sexNote) sexNote.hidden = !(selectedIntensity === 'quente' && selectedHotMode === 'sexo');
+    const sexOptions = setupContent.querySelector('#sex-session-options');
+    if (sexOptions) sexOptions.hidden = !(selectedIntensity === 'quente' && selectedHotMode === 'sexo');
 
-    const count = setupContent.querySelector('#couple-count-v4');
+    const count = setupContent.querySelector('#couple-count-v5');
     if (count) {
       const previous = Number(count.value) || 10;
       const allowed = allowedCounts();
       count.replaceChildren(...allowed.map((value) => {
         const option = document.createElement('option');
         option.value = String(value);
-        option.textContent = `${value} cartas`;
+        option.textContent = `${value} ${selectedHotMode === 'sexo' ? 'desafios' : 'cartas'}`;
         return option;
       }));
       count.value = String(allowed.includes(previous) ? previous : allowed[0]);
@@ -154,35 +167,41 @@ export function installCoupleExperienceEngine(coupleQuestions) {
       createElement('span', 'room-icon', '💞'),
       createElement('p', 'kicker', 'SALA 01 · ENTRE NÓS'),
       createElement('h1', '', 'Escolham a intensidade da noite.'),
-      createElement('p', '', 'Romântico, profundo ou Quente 18+. Dentro do Quente, vocês escolhem até onde querem ir.')
+      createElement('p', '', 'Romântico, profundo ou Quente 18+. As opções mais ousadas aparecem somente depois que vocês escolhem o Quente.')
     );
     setupContent.append(header);
 
     const form = createElement('div', 'form-grid');
     form.innerHTML = `
-      <div class="field"><label for="couple-name-one-v4">Pessoa 1</label><input class="input" id="couple-name-one-v4" maxlength="28" placeholder="Seu nome"></div>
-      <div class="field"><label for="couple-name-two-v4">Pessoa 2</label><input class="input" id="couple-name-two-v4" maxlength="28" placeholder="Nome do par"></div>
+      <div class="field"><label for="couple-name-one-v5">Pessoa 1</label><input class="input" id="couple-name-one-v5" maxlength="28" placeholder="Seu nome"></div>
+      <div class="field"><label for="couple-name-two-v5">Pessoa 2</label><input class="input" id="couple-name-two-v5" maxlength="28" placeholder="Nome do par"></div>
       <div class="field-full">
         <span class="form-label">Seção</span>
         <div class="segmented couple-intensity-grid couple-intensity-grid-v3">
           ${Object.entries(intensityMeta).map(([value, meta]) => `<button class="segment-button" type="button" data-couple-intensity="${value}"><span>${meta.label}</span><small>${meta.hint}</small></button>`).join('')}
         </div>
       </div>
-      <div class="field-full hot-submode-field" id="hot-submode-field-v4" hidden>
+      <div class="field-full hot-submode-field" id="hot-submode-field-v5" hidden>
         <div class="adult-mode-head">
-          <div><span class="form-label">Quente 18+</span><p>Escolha o ritmo. A sessão Sexo mistura perguntas diretas e desafios íntimos para o casal.</p></div>
+          <div><span class="form-label">Quente 18+</span><p>Escolham o ritmo e até onde querem levar a sessão.</p></div>
           <span class="adult-pill">18+</span>
         </div>
         <div class="hot-mode-grid">
           <button class="hot-mode-card" type="button" data-hot-mode="progressivo"><strong>⚡ Progressivo</strong><span>🔥 Picante → 😈 Fetiches → 🖤 Sem Tabu</span><small>A intensidade sobe sozinha durante a sessão.</small></button>
           <button class="hot-mode-card" type="button" data-hot-mode="picante"><strong>🔥 Picante</strong><span>${hotStageDescriptions.picante}</span><small>Desejo, química e provocação.</small></button>
           <button class="hot-mode-card" type="button" data-hot-mode="fetiches"><strong>😈 Fetiches</strong><span>${hotStageDescriptions.fetiches}</span><small>Fantasias, curiosidade e experimentação.</small></button>
-          <button class="hot-mode-card" type="button" data-hot-mode="semtabu"><strong>🖤 Sem Tabu</strong><span>${hotStageDescriptions.semtabu}</span><small>Conversas adultas diretas e sem constrangimento.</small></button>
-          <button class="hot-mode-card sex-mode-card" type="button" data-hot-mode="sexo"><strong>❤️‍🔥 Sexo</strong><span>Perguntas diretas + desafios íntimos.</span><small>Para o casal que quer uma sessão adulta sem rodeios.</small></button>
+          <button class="hot-mode-card" type="button" data-hot-mode="semtabu"><strong>🖤 Sem Tabu</strong><span>${hotStageDescriptions.semtabu}</span><small>Conversas adultas diretas.</small></button>
+          <button class="hot-mode-card sex-mode-card" type="button" data-hot-mode="sexo"><strong>❤️‍🔥 Sexo</strong><span>Somente desafios para o casal.</span><small>Começa provocante e aumenta a intensidade em três níveis.</small></button>
         </div>
-        <div class="adult-consent-note" id="sex-session-note" hidden>🔞 <strong>Sexo 18+</strong>: qualquer carta ou desafio pode ser trocado, recusado ou interrompido a qualquer momento. Consentimento vale durante toda a sessão.</div>
+        <div id="sex-session-options" hidden>
+          <div class="adult-consent-note">🔞 <strong>Regra principal:</strong> qualquer desafio pode ser recusado, adaptado ou pulado sem penalidade quando houver limite, desconforto ou falta de vontade.</div>
+          <label class="adult-consent-note" style="display:flex;gap:10px;align-items:flex-start;cursor:pointer">
+            <input id="sex-penalty-enabled" type="checkbox" style="margin-top:3px">
+            <span><strong>Ativar prenda opcional:</strong> se alguém aceitar um desafio e perder a brincadeira, escolhe entre tirar uma peça de roupa própria ou dar um beijo de língua. Os dois precisam concordar com esta regra antes de começar.</span>
+          </label>
+        </div>
       </div>
-      <div class="field-full"><label for="couple-count-v4">Cartas nesta sessão</label><select class="select" id="couple-count-v4"></select></div>
+      <div class="field-full"><label for="couple-count-v5">Quantidade nesta sessão</label><select class="select" id="couple-count-v5"></select></div>
     `;
     setupContent.append(form);
 
@@ -201,12 +220,13 @@ export function installCoupleExperienceEngine(coupleQuestions) {
     start.type = 'button';
     start.addEventListener('click', () => startSession({
       names: [
-        cleanName(setupContent.querySelector('#couple-name-one-v4').value, 'Pessoa 1'),
-        cleanName(setupContent.querySelector('#couple-name-two-v4').value, 'Pessoa 2')
+        cleanName(setupContent.querySelector('#couple-name-one-v5').value, 'Pessoa 1'),
+        cleanName(setupContent.querySelector('#couple-name-two-v5').value, 'Pessoa 2')
       ],
       intensity: selectedIntensity,
       hotMode: selectedIntensity === 'quente' ? selectedHotMode : null,
-      count: Number(setupContent.querySelector('#couple-count-v4').value)
+      penaltyEnabled: Boolean(setupContent.querySelector('#sex-penalty-enabled')?.checked),
+      count: Number(setupContent.querySelector('#couple-count-v5').value)
     }));
     actions.append(start);
     setupContent.append(actions);
@@ -221,8 +241,11 @@ export function installCoupleExperienceEngine(coupleQuestions) {
 
   function getPool(config, index) {
     if (config.intensity !== 'quente') return coupleQuestions.filter((question) => question.intensity === config.intensity);
-    if (config.hotMode === 'sexo') return coupleQuestions.filter((question) => question.intensity === 'erotico');
-    const stage = sessionStage(config, index);
+    if (config.hotMode === 'sexo') {
+      const heat = sexHeat(index, config.count);
+      return coupleQuestions.filter((question) => question.intensity === 'erotico' && question.type === 'challenge' && Number(question.heat) === heat);
+    }
+    const stage = config.hotMode === 'progressivo' ? progressiveStage(index, config.count) : config.hotMode;
     return coupleQuestions.filter((question) => question.intensity === 'quente' && question.hotStage === stage);
   }
 
@@ -236,6 +259,7 @@ export function installCoupleExperienceEngine(coupleQuestions) {
     const key = poolKey(state.config, state.index);
     if (!state.bags.has(key) || !state.bags.get(key).length) refillBag(key);
     const question = state.bags.get(key).pop();
+    if (!question) throw new Error(`Nenhuma carta disponível para ${key}`);
     state.usedIds.add(question.id);
     return question;
   }
@@ -260,30 +284,39 @@ export function installCoupleExperienceEngine(coupleQuestions) {
     return trail;
   }
 
+  function renderSexTrail(heat) {
+    const trail = createElement('div', 'hot-stage-trail');
+    [1, 2, 3].forEach((level) => {
+      const step = createElement('div', 'hot-stage-step');
+      if (level === heat) step.classList.add('is-active');
+      if (level < heat) step.classList.add('is-done');
+      step.append(createElement('strong', '', SEX_HEAT_LABELS[level]), createElement('small', '', `nível ${level}`));
+      trail.append(step);
+    });
+    return trail;
+  }
+
   function renderQuestion() {
     const { config, index, currentQuestion: question } = state;
-    const stage = sessionStage(config, index);
     const sexSession = config.intensity === 'quente' && config.hotMode === 'sexo';
-    const challenge = question.type === 'challenge';
+    const heat = sexSession ? sexHeat(index, config.count) : null;
+    const stage = sexSession ? null : (config.intensity === 'quente' ? (config.hotMode === 'progressivo' ? progressiveStage(index, config.count) : config.hotMode) : null);
 
     scoreboard.replaceChildren();
     gameContent.replaceChildren();
 
-    if (sexSession) {
-      gameProgress.textContent = `${challenge ? 'Desafio' : 'Carta'} ${index + 1} de ${config.count} · ❤️‍🔥 Sexo 18+`;
-    } else if (config.intensity === 'quente') {
-      gameProgress.textContent = `Carta ${index + 1} de ${config.count} · ${hotStageLabels[stage]}`;
-    } else {
-      gameProgress.textContent = `Carta ${index + 1} de ${config.count} · ${modeLabel(config)}`;
-    }
+    if (sexSession) gameProgress.textContent = `Desafio ${index + 1} de ${config.count} · ${SEX_HEAT_LABELS[heat]}`;
+    else if (config.intensity === 'quente') gameProgress.textContent = `Carta ${index + 1} de ${config.count} · ${hotStageLabels[stage]}`;
+    else gameProgress.textContent = `Carta ${index + 1} de ${config.count} · ${modeLabel(config)}`;
 
-    const card = createElement('article', `question-card couple-question progressive-couple-card${sexSession ? ' sex-question-card' : ''}${challenge ? ' sex-challenge-card' : ''}`);
-    if (config.intensity === 'quente' && !sexSession) card.append(renderTrail(stage));
+    const card = createElement('article', `question-card couple-question progressive-couple-card${sexSession ? ' sex-question-card sex-challenge-card' : ''}`);
+    if (sexSession) card.append(renderSexTrail(heat));
+    else if (config.intensity === 'quente') card.append(renderTrail(stage));
 
     const meta = createElement('div', 'question-meta');
     meta.append(
-      createElement('span', 'category-chip', challenge ? '⚡ Desafio' : question.category),
-      createElement('span', 'badge', modeLabel(config))
+      createElement('span', 'category-chip', sexSession ? `⚡ ${question.category || 'Desafio'}` : question.category),
+      createElement('span', 'badge', sexSession ? `❤️‍🔥 Nível ${heat}` : modeLabel(config))
     );
 
     card.append(
@@ -293,29 +326,25 @@ export function installCoupleExperienceEngine(coupleQuestions) {
     );
 
     const footer = createElement('div', 'question-footer');
-    footer.append(createElement('div', 'feedback', sexSession
-      ? challenge
-        ? 'Façam somente se os dois quiserem. Recusar, adaptar ou trocar o desafio não encerra a sessão.'
-        : 'Respondam sem transformar desejo em obrigação. Qualquer carta pode ser trocada.'
+    const feedback = sexSession
+      ? config.penaltyEnabled
+        ? 'Prenda opcional ativa para quem aceitou a brincadeira e perdeu. Limite, desconforto ou falta de vontade sempre permitem pular sem prenda.'
+        : 'Qualquer desafio pode ser recusado, adaptado ou pulado. Consentimento continua valendo durante toda a rodada.'
       : config.intensity === 'quente'
         ? 'Respondam apenas o que quiserem. “Não quero” e “trocar” continuam válidos.'
-        : 'Conversem no tempo de vocês.'));
+        : 'Conversem no tempo de vocês.';
+    footer.append(createElement('div', 'feedback', feedback));
 
     const actions = createElement('div', 'question-actions');
-    const skip = createElement('button', 'ghost-button', challenge ? 'Pular desafio' : 'Trocar carta');
+    const skip = createElement('button', 'ghost-button', sexSession ? 'Pular desafio' : 'Trocar carta');
     skip.type = 'button';
     skip.addEventListener('click', () => {
       state.currentQuestion = nextQuestion();
       renderQuestion();
-      showToast(challenge ? 'Desafio pulado sem avançar a sessão.' : 'Carta trocada sem avançar a sessão.');
+      showToast(sexSession ? 'Desafio pulado sem avançar a sessão.' : 'Carta trocada sem avançar a sessão.');
     });
 
-    const nextLabel = index + 1 >= config.count
-      ? 'Encerrar sessão →'
-      : challenge
-        ? 'Desafio concluído →'
-        : 'Próxima carta →';
-    const next = createElement('button', 'primary-button', nextLabel);
+    const next = createElement('button', 'primary-button', index + 1 >= config.count ? 'Encerrar sessão →' : sexSession ? 'Desafio concluído →' : 'Próxima carta →');
     next.type = 'button';
     next.addEventListener('click', () => {
       if (state.index + 1 >= state.config.count) {
@@ -323,13 +352,14 @@ export function installCoupleExperienceEngine(coupleQuestions) {
         return;
       }
       const previousStage = sessionStage(state.config, state.index);
+      const previousHeat = sexSession ? sexHeat(state.index, state.config.count) : null;
       state.index += 1;
       const nextStage = sessionStage(state.config, state.index);
+      const nextHeat = sexSession ? sexHeat(state.index, state.config.count) : null;
       state.currentQuestion = nextQuestion();
       renderQuestion();
-      if (state.config.intensity === 'quente' && state.config.hotMode === 'progressivo' && previousStage !== nextStage) {
-        showToast(`A intensidade subiu: ${hotStageLabels[nextStage]}`);
-      }
+      if (sexSession && previousHeat !== nextHeat) showToast(`A intensidade subiu: ${SEX_HEAT_LABELS[nextHeat]}`);
+      else if (state.config.intensity === 'quente' && state.config.hotMode === 'progressivo' && previousStage !== nextStage) showToast(`A intensidade subiu: ${hotStageLabels[nextStage]}`);
     });
 
     actions.append(skip, next);
@@ -345,8 +375,8 @@ export function installCoupleExperienceEngine(coupleQuestions) {
     resultContent.append(
       createElement('div', 'result-icon', sexSession ? '❤️‍🔥' : state.config.intensity === 'quente' ? '🔥' : '💗'),
       createElement('p', 'kicker', 'SESSÃO CONCLUÍDA'),
-      createElement('h1', '', sexSession ? 'Vocês chegaram até o fim.' : 'Boa conversa.'),
-      createElement('p', '', `${state.config.names[0]} e ${state.config.names[1]} concluíram ${state.config.count} cartas em ${modeLabel(state.config)}.`)
+      createElement('h1', '', sexSession ? 'Vocês chegaram ao nível máximo.' : 'Boa conversa.'),
+      createElement('p', '', `${state.config.names[0]} e ${state.config.names[1]} concluíram ${state.config.count} ${sexSession ? 'desafios' : 'cartas'} em ${modeLabel(state.config)}.`)
     );
 
     const row = createElement('div', 'button-row');
