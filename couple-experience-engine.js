@@ -60,6 +60,45 @@ function sexHeat(index, count) {
   return 3;
 }
 
+function sexChallengeText(text) {
+  return String(text || '')
+    .replace(/^Se ambos quiserem,\s*/i, '')
+    .replace(/,\s*se ambos estiverem confortáveis/gi, '')
+    .replace(/\s*Só vale se os dois estiverem confortáveis\.?/gi, '')
+    .replace(/,\s*respeitando os limites combinados/gi, '')
+    .replace(/,\s*sem obrigação de continuar depois/gi, '')
+    .replace(/,\s*sempre de forma confortável/gi, '')
+    .replace(/\s*O outro pode aceitar, adaptar ou recusar cada um\.?/gi, '')
+    .replace(/\s*Só entram opções que ambos aceitariam fazer hoje\.?/gi, '')
+    .replace(/,?\s*somente se ele\(a\) topar/gi, '')
+    .replace(/,?\s*se ambos estiverem confortáveis/gi, '')
+    .replace(/\s+([,.!?])/g, '$1')
+    .replace(/\.{2,}/g, '.')
+    .trim();
+}
+
+function challengeSeconds(text) {
+  const source = String(text || '').toLowerCase();
+  if (/entre\s+\d+\s+e\s+\d+\s+segundos/.test(source)) return null;
+  const seconds = source.match(/(\d+)\s*segundos?/);
+  if (seconds) return Number(seconds[1]);
+  const minuteWords = { um: 60, uma: 60, dois: 120, duas: 120, três: 180 };
+  const minutes = source.match(/\b(um|uma|dois|duas|três)\s+minutos?/);
+  if (minutes) return minuteWords[minutes[1]] || null;
+  return null;
+}
+
+function challengeNeedsDice(text) {
+  return /\bdado\b|sorteie|sortear|sorteiem/i.test(String(text || ''));
+}
+
+function formatTime(total) {
+  const seconds = Math.max(0, Number(total) || 0);
+  const mm = Math.floor(seconds / 60).toString().padStart(2, '0');
+  const ss = (seconds % 60).toString().padStart(2, '0');
+  return `${mm}:${ss}`;
+}
+
 const SEX_HEAT_LABELS = Object.freeze({
   1: '🔥 Aquecendo',
   2: '❤️‍🔥 Provocando',
@@ -80,12 +119,18 @@ export function installCoupleExperienceEngine(coupleQuestions) {
   let selectedHotMode = 'progressivo';
   let state = null;
   let toastTimer = null;
+  let countdownTimer = null;
 
   const intensityMeta = {
     leve: { label: '🌷 Romântico', hint: 'carinho, memórias e conexão' },
     profundo: { label: '🌙 Profundo', hint: 'sentimentos, vulnerabilidade e futuro' },
     quente: { label: '🔥 Quente 18+', hint: 'escolha o nível depois de entrar' }
   };
+
+  function clearCountdown() {
+    if (countdownTimer) window.clearInterval(countdownTimer);
+    countdownTimer = null;
+  }
 
   function showToast(message) {
     if (!toast) return;
@@ -96,6 +141,7 @@ export function installCoupleExperienceEngine(coupleQuestions) {
   }
 
   function goHome() {
+    clearCountdown();
     active = false;
     state = null;
     setupContent.replaceChildren();
@@ -130,17 +176,14 @@ export function installCoupleExperienceEngine(coupleQuestions) {
       button.classList.toggle('is-selected', button.dataset.coupleIntensity === selectedIntensity);
     });
 
-    const submodes = setupContent.querySelector('#hot-submode-field-v5');
+    const submodes = setupContent.querySelector('#hot-submode-field-v6');
     if (submodes) submodes.hidden = selectedIntensity !== 'quente';
 
     setupContent.querySelectorAll('[data-hot-mode]').forEach((button) => {
       button.classList.toggle('is-selected', button.dataset.hotMode === selectedHotMode);
     });
 
-    const sexOptions = setupContent.querySelector('#sex-session-options');
-    if (sexOptions) sexOptions.hidden = !(selectedIntensity === 'quente' && selectedHotMode === 'sexo');
-
-    const count = setupContent.querySelector('#couple-count-v5');
+    const count = setupContent.querySelector('#couple-count-v6');
     if (count) {
       const previous = Number(count.value) || 10;
       const allowed = allowedCounts();
@@ -155,6 +198,7 @@ export function installCoupleExperienceEngine(coupleQuestions) {
   }
 
   function renderSetup() {
+    clearCountdown();
     active = true;
     state = null;
     setupContent.replaceChildren();
@@ -173,17 +217,17 @@ export function installCoupleExperienceEngine(coupleQuestions) {
 
     const form = createElement('div', 'form-grid');
     form.innerHTML = `
-      <div class="field"><label for="couple-name-one-v5">Pessoa 1</label><input class="input" id="couple-name-one-v5" maxlength="28" placeholder="Seu nome"></div>
-      <div class="field"><label for="couple-name-two-v5">Pessoa 2</label><input class="input" id="couple-name-two-v5" maxlength="28" placeholder="Nome do par"></div>
+      <div class="field"><label for="couple-name-one-v6">Pessoa 1</label><input class="input" id="couple-name-one-v6" maxlength="28" placeholder="Seu nome"></div>
+      <div class="field"><label for="couple-name-two-v6">Pessoa 2</label><input class="input" id="couple-name-two-v6" maxlength="28" placeholder="Nome do par"></div>
       <div class="field-full">
         <span class="form-label">Seção</span>
         <div class="segmented couple-intensity-grid couple-intensity-grid-v3">
           ${Object.entries(intensityMeta).map(([value, meta]) => `<button class="segment-button" type="button" data-couple-intensity="${value}"><span>${meta.label}</span><small>${meta.hint}</small></button>`).join('')}
         </div>
       </div>
-      <div class="field-full hot-submode-field" id="hot-submode-field-v5" hidden>
+      <div class="field-full hot-submode-field" id="hot-submode-field-v6" hidden>
         <div class="adult-mode-head">
-          <div><span class="form-label">Quente 18+</span><p>Escolham o ritmo e até onde querem levar a sessão.</p></div>
+          <div><span class="form-label">Quente 18+</span><p>Escolham a vibe da rodada.</p></div>
           <span class="adult-pill">18+</span>
         </div>
         <div class="hot-mode-grid">
@@ -191,17 +235,10 @@ export function installCoupleExperienceEngine(coupleQuestions) {
           <button class="hot-mode-card" type="button" data-hot-mode="picante"><strong>🔥 Picante</strong><span>${hotStageDescriptions.picante}</span><small>Desejo, química e provocação.</small></button>
           <button class="hot-mode-card" type="button" data-hot-mode="fetiches"><strong>😈 Fetiches</strong><span>${hotStageDescriptions.fetiches}</span><small>Fantasias, curiosidade e experimentação.</small></button>
           <button class="hot-mode-card" type="button" data-hot-mode="semtabu"><strong>🖤 Sem Tabu</strong><span>${hotStageDescriptions.semtabu}</span><small>Conversas adultas diretas.</small></button>
-          <button class="hot-mode-card sex-mode-card" type="button" data-hot-mode="sexo"><strong>❤️‍🔥 Sexo</strong><span>Somente desafios para o casal.</span><small>Começa provocante e aumenta a intensidade em três níveis.</small></button>
-        </div>
-        <div id="sex-session-options" hidden>
-          <div class="adult-consent-note">🔞 <strong>Regra principal:</strong> qualquer desafio pode ser recusado, adaptado ou pulado sem penalidade quando houver limite, desconforto ou falta de vontade.</div>
-          <label class="adult-consent-note" style="display:flex;gap:10px;align-items:flex-start;cursor:pointer">
-            <input id="sex-penalty-enabled" type="checkbox" style="margin-top:3px">
-            <span><strong>Ativar prenda opcional:</strong> se alguém aceitar um desafio e perder a brincadeira, escolhe entre tirar uma peça de roupa própria ou dar um beijo de língua. Os dois precisam concordar com esta regra antes de começar.</span>
-          </label>
+          <button class="hot-mode-card sex-mode-card" type="button" data-hot-mode="sexo"><strong>❤️‍🔥 Desafios</strong><span>Cartas viradas, papéis alternados, cronômetro, dado e prendas.</span><small>Começa provocante e termina no nível intenso.</small></button>
         </div>
       </div>
-      <div class="field-full"><label for="couple-count-v5">Quantidade nesta sessão</label><select class="select" id="couple-count-v5"></select></div>
+      <div class="field-full"><label for="couple-count-v6">Quantidade nesta sessão</label><select class="select" id="couple-count-v6"></select></div>
     `;
     setupContent.append(form);
 
@@ -218,19 +255,71 @@ export function installCoupleExperienceEngine(coupleQuestions) {
     const actions = createElement('div', 'setup-actions');
     const start = createElement('button', 'primary-button', 'Começar a sessão →');
     start.type = 'button';
-    start.addEventListener('click', () => startSession({
-      names: [
-        cleanName(setupContent.querySelector('#couple-name-one-v5').value, 'Pessoa 1'),
-        cleanName(setupContent.querySelector('#couple-name-two-v5').value, 'Pessoa 2')
-      ],
-      intensity: selectedIntensity,
-      hotMode: selectedIntensity === 'quente' ? selectedHotMode : null,
-      penaltyEnabled: Boolean(setupContent.querySelector('#sex-penalty-enabled')?.checked),
-      count: Number(setupContent.querySelector('#couple-count-v5').value)
-    }));
+    start.addEventListener('click', () => {
+      const config = {
+        names: [
+          cleanName(setupContent.querySelector('#couple-name-one-v6').value, 'Pessoa 1'),
+          cleanName(setupContent.querySelector('#couple-name-two-v6').value, 'Pessoa 2')
+        ],
+        intensity: selectedIntensity,
+        hotMode: selectedIntensity === 'quente' ? selectedHotMode : null,
+        count: Number(setupContent.querySelector('#couple-count-v6').value)
+      };
+      if (config.intensity === 'quente' && config.hotMode === 'sexo') renderSexGate(config);
+      else startSession(config);
+    });
     actions.append(start);
     setupContent.append(actions);
     syncSetup();
+    showView('setup-view');
+  }
+
+  function renderSexGate(config) {
+    setupContent.replaceChildren();
+    const confirmed = [false, false];
+
+    const gate = createElement('div', 'sex-consent-gate');
+    gate.append(
+      createElement('div', 'result-icon', '❤️‍🔥'),
+      createElement('p', 'kicker', 'ANTES DE ENTRAR'),
+      createElement('h1', '', 'Os dois estão dentro?'),
+      createElement('p', 'sex-consent-copy', 'Modo adulto 18+. Os dois confirmam que querem participar desta sessão e sabem que podem encerrar o jogo a qualquer momento. Depois desta tela, as cartas não repetem avisos e o jogo segue direto para a diversão.')
+    );
+
+    const confirmations = createElement('div', 'sex-confirm-grid');
+    const enter = createElement('button', 'primary-button sex-enter-button', '🔥 Entrar no jogo');
+    enter.type = 'button';
+    enter.disabled = true;
+
+    config.names.forEach((name, index) => {
+      const button = createElement('button', 'sex-confirm-button', `${name}: EU TOPO 🔥`);
+      button.type = 'button';
+      button.addEventListener('click', () => {
+        confirmed[index] = !confirmed[index];
+        button.classList.toggle('is-confirmed', confirmed[index]);
+        button.textContent = confirmed[index] ? `${name}: ✓ DENTRO` : `${name}: EU TOPO 🔥`;
+        enter.disabled = !(confirmed[0] && confirmed[1]);
+      });
+      confirmations.append(button);
+    });
+
+    const penalty = createElement('label', 'sex-penalty-toggle');
+    penalty.innerHTML = `
+      <input id="sex-gate-penalty" type="checkbox" checked>
+      <span><strong>😈 Prenda ligada</strong><small>Quem aceitar e perder escolhe: tirar uma peça própria ou beijo de língua.</small></span>
+    `;
+
+    enter.addEventListener('click', () => {
+      if (!(confirmed[0] && confirmed[1])) return;
+      startSession({ ...config, penaltyEnabled: Boolean(penalty.querySelector('input')?.checked) });
+    });
+
+    const back = createElement('button', 'ghost-button', '← Voltar aos modos');
+    back.type = 'button';
+    back.addEventListener('click', renderSetup);
+
+    gate.append(confirmations, penalty, enter, back);
+    setupContent.append(gate);
     showView('setup-view');
   }
 
@@ -264,8 +353,24 @@ export function installCoupleExperienceEngine(coupleQuestions) {
     return question;
   }
 
+  function resetRoundUi() {
+    clearCountdown();
+    state.revealed = false;
+    state.accepted = false;
+  }
+
   function startSession(config) {
-    state = { config: structuredClone(config), index: 0, bags: new Map(), usedIds: new Set(), currentQuestion: null };
+    clearCountdown();
+    state = {
+      config: structuredClone(config),
+      index: 0,
+      bags: new Map(),
+      usedIds: new Set(),
+      currentQuestion: null,
+      revealed: false,
+      accepted: false,
+      turnOffset: secureRandomIndex(2)
+    };
     state.currentQuestion = nextQuestion();
     showView('game-view');
     renderQuestion();
@@ -285,7 +390,7 @@ export function installCoupleExperienceEngine(coupleQuestions) {
   }
 
   function renderSexTrail(heat) {
-    const trail = createElement('div', 'hot-stage-trail');
+    const trail = createElement('div', 'hot-stage-trail sex-heat-trail');
     [1, 2, 3].forEach((level) => {
       const step = createElement('div', 'hot-stage-step');
       if (level === heat) step.classList.add('is-active');
@@ -296,79 +401,244 @@ export function installCoupleExperienceEngine(coupleQuestions) {
     return trail;
   }
 
-  function renderQuestion() {
+  function rolesForRound() {
+    const challengerIndex = (state.index + state.turnOffset) % 2;
+    return {
+      challenger: state.config.names[challengerIndex],
+      receiver: state.config.names[(challengerIndex + 1) % 2]
+    };
+  }
+
+  function startCountdown(seconds, display, button) {
+    clearCountdown();
+    let remaining = seconds;
+    display.textContent = `⏱ ${formatTime(remaining)}`;
+    button.disabled = true;
+    button.textContent = 'Cronômetro rodando…';
+    countdownTimer = window.setInterval(() => {
+      remaining -= 1;
+      display.textContent = `⏱ ${formatTime(remaining)}`;
+      if (remaining <= 0) {
+        clearCountdown();
+        display.textContent = '🔥 TEMPO!';
+        button.textContent = '✓ Tempo concluído';
+        showToast('Tempo! Próxima decisão é de vocês 😈');
+      }
+    }, 1000);
+  }
+
+  function advanceQuestion() {
+    clearCountdown();
+    if (state.index + 1 >= state.config.count) {
+      finishSession();
+      return;
+    }
+    const sexSession = state.config.intensity === 'quente' && state.config.hotMode === 'sexo';
+    const previousHeat = sexSession ? sexHeat(state.index, state.config.count) : null;
+    const previousStage = !sexSession ? sessionStage(state.config, state.index) : null;
+    state.index += 1;
+    const nextHeat = sexSession ? sexHeat(state.index, state.config.count) : null;
+    const nextStage = !sexSession ? sessionStage(state.config, state.index) : null;
+    state.currentQuestion = nextQuestion();
+    resetRoundUi();
+    renderQuestion();
+    if (sexSession && previousHeat !== nextHeat) showToast(`Subiu o nível: ${SEX_HEAT_LABELS[nextHeat]} 🔥`);
+    else if (!sexSession && state.config.hotMode === 'progressivo' && previousStage !== nextStage) showToast(`A intensidade subiu: ${hotStageLabels[nextStage]}`);
+  }
+
+  function replaceCurrentChallenge() {
+    clearCountdown();
+    state.currentQuestion = nextQuestion();
+    resetRoundUi();
+    renderQuestion();
+    showToast('Novo desafio na mesa 🔥');
+  }
+
+  function renderPenalty() {
+    clearCountdown();
+    const { challenger, receiver } = rolesForRound();
+    gameContent.replaceChildren();
+    const card = createElement('article', 'question-card sex-penalty-card');
+    card.append(
+      createElement('div', 'result-icon', '😈'),
+      createElement('p', 'kicker', 'PERDEU A RODADA'),
+      createElement('h2', 'question-text', `${receiver}, escolha sua prenda.`),
+      createElement('p', 'couple-names', `${challenger} venceu este desafio.`)
+    );
+    const row = createElement('div', 'sex-penalty-actions');
+    const clothing = createElement('button', 'primary-button', '👕 Tirar uma peça');
+    clothing.type = 'button';
+    clothing.addEventListener('click', () => {
+      showToast('Prenda escolhida 😈');
+      advanceQuestion();
+    });
+    const kiss = createElement('button', 'secondary-button', '💋 Beijo de língua');
+    kiss.type = 'button';
+    kiss.addEventListener('click', () => {
+      showToast('Prenda escolhida 🔥');
+      advanceQuestion();
+    });
+    row.append(clothing, kiss);
+    card.append(row, progressBar((state.index + 1) / state.config.count));
+    gameContent.append(card);
+  }
+
+  function renderSexQuestion() {
     const { config, index, currentQuestion: question } = state;
-    const sexSession = config.intensity === 'quente' && config.hotMode === 'sexo';
-    const heat = sexSession ? sexHeat(index, config.count) : null;
-    const stage = sexSession ? null : (config.intensity === 'quente' ? (config.hotMode === 'progressivo' ? progressiveStage(index, config.count) : config.hotMode) : null);
+    const heat = sexHeat(index, config.count);
+    const roles = rolesForRound();
+    const cleanText = sexChallengeText(question.text);
+    const seconds = challengeSeconds(cleanText);
+    const needsDice = challengeNeedsDice(cleanText);
 
     scoreboard.replaceChildren();
     gameContent.replaceChildren();
+    gameProgress.textContent = `Desafio ${index + 1} de ${config.count} · ${SEX_HEAT_LABELS[heat]}`;
 
-    if (sexSession) gameProgress.textContent = `Desafio ${index + 1} de ${config.count} · ${SEX_HEAT_LABELS[heat]}`;
-    else if (config.intensity === 'quente') gameProgress.textContent = `Carta ${index + 1} de ${config.count} · ${hotStageLabels[stage]}`;
-    else gameProgress.textContent = `Carta ${index + 1} de ${config.count} · ${modeLabel(config)}`;
+    const card = createElement('article', 'question-card couple-question progressive-couple-card sex-question-card sex-challenge-card');
+    card.append(renderSexTrail(heat));
 
-    const card = createElement('article', `question-card couple-question progressive-couple-card${sexSession ? ' sex-question-card sex-challenge-card' : ''}`);
-    if (sexSession) card.append(renderSexTrail(heat));
-    else if (config.intensity === 'quente') card.append(renderTrail(stage));
+    const rolesCard = createElement('div', 'sex-role-card');
+    rolesCard.innerHTML = `<span class="sex-role challenger">🔥 ${roles.challenger}</span><strong>DESAFIA</strong><span class="sex-role receiver">❤️‍🔥 ${roles.receiver}</span>`;
+    card.append(rolesCard);
+
+    if (!state.revealed) {
+      const secret = createElement('div', 'sex-secret-card');
+      secret.append(
+        createElement('span', 'sex-secret-icon', '🔒'),
+        createElement('h2', 'sex-secret-title', 'DESAFIO SECRETO'),
+        createElement('p', 'sex-secret-copy', 'Vocês só descobrem quando virarem a carta.')
+      );
+      const reveal = createElement('button', 'primary-button sex-reveal-button', '🔥 REVELAR DESAFIO');
+      reveal.type = 'button';
+      reveal.addEventListener('click', () => {
+        state.revealed = true;
+        renderSexQuestion();
+      });
+      secret.append(reveal);
+      card.append(secret, progressBar((index + 1) / config.count));
+      gameContent.append(card);
+      return;
+    }
 
     const meta = createElement('div', 'question-meta');
     meta.append(
-      createElement('span', 'category-chip', sexSession ? `⚡ ${question.category || 'Desafio'}` : question.category),
-      createElement('span', 'badge', sexSession ? `❤️‍🔥 Nível ${heat}` : modeLabel(config))
+      createElement('span', 'category-chip', `⚡ ${question.category || 'Desafio'}`),
+      createElement('span', 'badge', `❤️‍🔥 Nível ${heat}`)
     );
+    card.append(meta, createElement('h2', 'question-text', cleanText));
 
-    card.append(
-      meta,
-      createElement('p', 'couple-names', `${config.names[0]} + ${config.names[1]}`),
-      createElement('h2', 'question-text', question.text)
-    );
+    if (!state.accepted) {
+      const decision = createElement('div', 'sex-decision-actions');
+      const accept = createElement('button', 'primary-button sex-accept-button', '🔥 ACEITAR DESAFIO');
+      accept.type = 'button';
+      accept.addEventListener('click', () => {
+        state.accepted = true;
+        renderSexQuestion();
+      });
+      const swap = createElement('button', 'ghost-button', '↻ Trocar desafio');
+      swap.type = 'button';
+      swap.addEventListener('click', replaceCurrentChallenge);
+      decision.append(accept, swap);
+      card.append(decision, progressBar((index + 1) / config.count));
+      gameContent.append(card);
+      return;
+    }
+
+    const interactive = createElement('div', 'sex-interactive-tools');
+
+    if (seconds) {
+      const timerBox = createElement('div', 'sex-tool-card');
+      const timerDisplay = createElement('strong', 'sex-timer-display', `⏱ ${formatTime(seconds)}`);
+      const timerButton = createElement('button', 'secondary-button', '▶ Iniciar cronômetro');
+      timerButton.type = 'button';
+      timerButton.addEventListener('click', () => startCountdown(seconds, timerDisplay, timerButton));
+      timerBox.append(createElement('span', 'sex-tool-label', 'CRONÔMETRO'), timerDisplay, timerButton);
+      interactive.append(timerBox);
+    }
+
+    if (needsDice) {
+      const diceBox = createElement('div', 'sex-tool-card sex-dice-card');
+      const diceResult = createElement('strong', 'sex-dice-result', '🎲 ?');
+      const diceButton = createElement('button', 'secondary-button', '🎲 Rolar dado');
+      diceButton.type = 'button';
+      diceButton.addEventListener('click', () => {
+        const result = secureRandomIndex(6) + 1;
+        diceResult.textContent = `🎲 ${result}`;
+        diceResult.classList.remove('is-rolling');
+        void diceResult.offsetWidth;
+        diceResult.classList.add('is-rolling');
+      });
+      diceBox.append(createElement('span', 'sex-tool-label', 'DADO DO CASAL'), diceResult, diceButton);
+      interactive.append(diceBox);
+    }
+
+    if (interactive.childElementCount) card.append(interactive);
+
+    const actions = createElement('div', 'sex-round-actions');
+    const completed = createElement('button', 'primary-button', index + 1 >= config.count ? '🔥 CUMPRIDO · ENCERRAR' : '🔥 CUMPRIDO');
+    completed.type = 'button';
+    completed.addEventListener('click', advanceQuestion);
+
+    if (config.penaltyEnabled) {
+      const lost = createElement('button', 'secondary-button', '😈 PERDEU A RODADA');
+      lost.type = 'button';
+      lost.addEventListener('click', renderPenalty);
+      actions.append(completed, lost);
+    } else {
+      actions.append(completed);
+    }
+
+    const swap = createElement('button', 'ghost-button', '↻ Trocar desafio');
+    swap.type = 'button';
+    swap.addEventListener('click', replaceCurrentChallenge);
+    actions.append(swap);
+
+    card.append(actions, progressBar((index + 1) / config.count));
+    gameContent.append(card);
+  }
+
+  function renderRegularQuestion() {
+    const { config, index, currentQuestion: question } = state;
+    const stage = config.intensity === 'quente' ? (config.hotMode === 'progressivo' ? progressiveStage(index, config.count) : config.hotMode) : null;
+    scoreboard.replaceChildren();
+    gameContent.replaceChildren();
+    gameProgress.textContent = config.intensity === 'quente'
+      ? `Carta ${index + 1} de ${config.count} · ${hotStageLabels[stage]}`
+      : `Carta ${index + 1} de ${config.count} · ${modeLabel(config)}`;
+
+    const card = createElement('article', 'question-card couple-question progressive-couple-card');
+    if (config.intensity === 'quente') card.append(renderTrail(stage));
+    const meta = createElement('div', 'question-meta');
+    meta.append(createElement('span', 'category-chip', question.category), createElement('span', 'badge', modeLabel(config)));
+    card.append(meta, createElement('p', 'couple-names', `${config.names[0]} + ${config.names[1]}`), createElement('h2', 'question-text', question.text));
 
     const footer = createElement('div', 'question-footer');
-    const feedback = sexSession
-      ? config.penaltyEnabled
-        ? 'Prenda opcional ativa para quem aceitou a brincadeira e perdeu. Limite, desconforto ou falta de vontade sempre permitem pular sem prenda.'
-        : 'Qualquer desafio pode ser recusado, adaptado ou pulado. Consentimento continua valendo durante toda a rodada.'
-      : config.intensity === 'quente'
-        ? 'Respondam apenas o que quiserem. “Não quero” e “trocar” continuam válidos.'
-        : 'Conversem no tempo de vocês.';
-    footer.append(createElement('div', 'feedback', feedback));
-
     const actions = createElement('div', 'question-actions');
-    const skip = createElement('button', 'ghost-button', sexSession ? 'Pular desafio' : 'Trocar carta');
+    const skip = createElement('button', 'ghost-button', 'Trocar carta');
     skip.type = 'button';
     skip.addEventListener('click', () => {
       state.currentQuestion = nextQuestion();
       renderQuestion();
-      showToast(sexSession ? 'Desafio pulado sem avançar a sessão.' : 'Carta trocada sem avançar a sessão.');
+      showToast('Carta trocada.');
     });
-
-    const next = createElement('button', 'primary-button', index + 1 >= config.count ? 'Encerrar sessão →' : sexSession ? 'Desafio concluído →' : 'Próxima carta →');
+    const next = createElement('button', 'primary-button', index + 1 >= config.count ? 'Encerrar sessão →' : 'Próxima carta →');
     next.type = 'button';
-    next.addEventListener('click', () => {
-      if (state.index + 1 >= state.config.count) {
-        finishSession();
-        return;
-      }
-      const previousStage = sessionStage(state.config, state.index);
-      const previousHeat = sexSession ? sexHeat(state.index, state.config.count) : null;
-      state.index += 1;
-      const nextStage = sessionStage(state.config, state.index);
-      const nextHeat = sexSession ? sexHeat(state.index, state.config.count) : null;
-      state.currentQuestion = nextQuestion();
-      renderQuestion();
-      if (sexSession && previousHeat !== nextHeat) showToast(`A intensidade subiu: ${SEX_HEAT_LABELS[nextHeat]}`);
-      else if (state.config.intensity === 'quente' && state.config.hotMode === 'progressivo' && previousStage !== nextStage) showToast(`A intensidade subiu: ${hotStageLabels[nextStage]}`);
-    });
-
+    next.addEventListener('click', advanceQuestion);
     actions.append(skip, next);
     footer.append(actions);
     card.append(footer, progressBar((index + 1) / config.count));
     gameContent.append(card);
   }
 
+  function renderQuestion() {
+    const sexSession = state.config.intensity === 'quente' && state.config.hotMode === 'sexo';
+    if (sexSession) renderSexQuestion();
+    else renderRegularQuestion();
+  }
+
   function finishSession() {
+    clearCountdown();
     const sexSession = state.config.intensity === 'quente' && state.config.hotMode === 'sexo';
     showView('result-view');
     resultContent.replaceChildren();
@@ -383,7 +653,10 @@ export function installCoupleExperienceEngine(coupleQuestions) {
     row.style.marginTop = '28px';
     const replay = createElement('button', 'primary-button', 'Outra sessão →');
     replay.type = 'button';
-    replay.addEventListener('click', () => startSession(structuredClone(state.config)));
+    replay.addEventListener('click', () => {
+      if (sexSession) renderSexGate(structuredClone(state.config));
+      else startSession(structuredClone(state.config));
+    });
     const modes = createElement('button', 'secondary-button', 'Mudar modo');
     modes.type = 'button';
     modes.addEventListener('click', renderSetup);
