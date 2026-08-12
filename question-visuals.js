@@ -17,6 +17,10 @@ const CATEGORY_VISUALS = [
 ];
 
 function resolveVisual(card) {
+  if (card.classList.contains('sex-challenge-card')) {
+    return { icon: '❤️‍🔥', label: 'Desafio secreto', theme: 'erotic' };
+  }
+
   const category = card.querySelector('.category-chip')?.textContent?.trim() || '';
   const badge = card.querySelector('.badge')?.textContent?.trim() || '';
   const combined = `${category} ${badge}`;
