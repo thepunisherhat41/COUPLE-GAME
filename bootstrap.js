@@ -14,6 +14,7 @@ import { decorateHotQuestions } from './questions/couple-hot-stages.js';
 import { installCoupleExperienceEngine } from './couple-experience-engine.js';
 import { installCompetitiveEngine } from './competitive-engine.js';
 import { installQuestionVisuals } from './question-visuals.js';
+import { installCoupleRepeatGuard } from './couple-repeat-guard.js';
 
 function ensureStylesheet(id, relativePath) {
   if (document.querySelector(`#${id}`)) return;
@@ -67,3 +68,4 @@ await import('./app.js');
 installCoupleExperienceEngine(coupleQuestions);
 installCompetitiveEngine(triviaQuestions);
 installQuestionVisuals();
+installCoupleRepeatGuard(coupleQuestions);
