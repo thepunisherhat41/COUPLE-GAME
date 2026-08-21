@@ -15,6 +15,7 @@ import { installCoupleExperienceEngine } from './couple-experience-engine.js';
 import { installCompetitiveEngine } from './competitive-engine.js';
 import { installQuestionVisuals } from './question-visuals.js';
 import { installCoupleRepeatGuard } from './couple-repeat-guard.js';
+import { installCoupleExperiencePlus } from './couple-experience-plus.js';
 
 function ensureStylesheet(id, relativePath) {
   if (document.querySelector(`#${id}`)) return;
@@ -28,6 +29,7 @@ function ensureStylesheet(id, relativePath) {
 ensureStylesheet('couple-progressive-styles', './couple-progressive.css');
 ensureStylesheet('competitive-styles', './competitive.css');
 ensureStylesheet('question-visual-styles', './question-visuals.css');
+ensureStylesheet('couple-experience-plus-styles', './couple-experience-plus.css');
 
 const popularTriviaQuestions = [
   ...popularEasy,
@@ -69,3 +71,4 @@ installCoupleExperienceEngine(coupleQuestions);
 installCompetitiveEngine(triviaQuestions);
 installQuestionVisuals();
 installCoupleRepeatGuard(coupleQuestions);
+installCoupleExperiencePlus(coupleQuestions);
