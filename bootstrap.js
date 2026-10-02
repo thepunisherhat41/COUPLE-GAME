@@ -10,12 +10,14 @@ import { extraRomanticCoupleQuestions } from './questions/couple-romantic-extra.
 import { extraDeepCoupleQuestions } from './questions/couple-deep-extra.js';
 import { sexChallengeCards } from './questions/couple-sex-challenges.js';
 import { userSexChallengeCards } from './questions/couple-sex-user-challenges.js';
+import { coupleKnowledgeQuestions } from './questions/couple-knowledge.js';
 import { decorateHotQuestions } from './questions/couple-hot-stages.js';
 import { installCoupleExperienceEngine } from './couple-experience-engine.js';
 import { installCompetitiveEngine } from './competitive-engine.js';
 import { installQuestionVisuals } from './question-visuals.js';
 import { installCoupleRepeatGuard } from './couple-repeat-guard.js';
 import { installCoupleExperiencePlus } from './couple-experience-plus.js';
+import { installCoupleV13 } from './couple-v13.js';
 
 function ensureStylesheet(id, relativePath) {
   if (document.querySelector(`#${id}`)) return;
@@ -30,6 +32,7 @@ ensureStylesheet('couple-progressive-styles', './couple-progressive.css');
 ensureStylesheet('competitive-styles', './competitive.css');
 ensureStylesheet('question-visual-styles', './question-visuals.css');
 ensureStylesheet('couple-experience-plus-styles', './couple-experience-plus.css');
+ensureStylesheet('couple-v13-styles', './couple-v13.css');
 
 const popularTriviaQuestions = [
   ...popularEasy,
@@ -72,3 +75,4 @@ installCompetitiveEngine(triviaQuestions);
 installQuestionVisuals();
 installCoupleRepeatGuard(coupleQuestions);
 installCoupleExperiencePlus(coupleQuestions);
+installCoupleV13(coupleQuestions, coupleKnowledgeQuestions);
