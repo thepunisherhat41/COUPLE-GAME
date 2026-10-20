@@ -18,6 +18,7 @@ import { installQuestionVisuals } from './question-visuals.js';
 import { installCoupleRepeatGuard } from './couple-repeat-guard.js';
 import { installCoupleExperiencePlus } from './couple-experience-plus.js';
 import { installCoupleV13 } from './couple-v13.js';
+import { installCoupleV14 } from './couple-v14.js';
 
 function ensureStylesheet(id, relativePath) {
   if (document.querySelector(`#${id}`)) return;
@@ -33,6 +34,7 @@ ensureStylesheet('competitive-styles', './competitive.css');
 ensureStylesheet('question-visual-styles', './question-visuals.css');
 ensureStylesheet('couple-experience-plus-styles', './couple-experience-plus.css');
 ensureStylesheet('couple-v13-styles', './couple-v13.css');
+ensureStylesheet('couple-v14-styles', './couple-v14.css');
 
 const popularTriviaQuestions = [
   ...popularEasy,
@@ -76,3 +78,4 @@ installQuestionVisuals();
 installCoupleRepeatGuard(coupleQuestions);
 installCoupleExperiencePlus(coupleQuestions);
 installCoupleV13(coupleQuestions, coupleKnowledgeQuestions);
+installCoupleV14();
