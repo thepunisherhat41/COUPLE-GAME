@@ -15,7 +15,7 @@ function normalize(value) {
 function savedProfileNames() {
   try {
     const profile = JSON.parse(localStorage.getItem('couple-game:profile:v1') || '{}');
-    return Array.isArray(profile.names) ? profile.names.map((name) => normalize(name)) : ['', '];
+    return Array.isArray(profile.names) ? profile.names.map((name) => normalize(name)) : ['', ''];
   } catch {
     return ['', '];
   }
