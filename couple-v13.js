@@ -12,6 +12,15 @@ function normalize(value) {
   return String(value || '').trim().replace(/\s+/g, ' ');
 }
 
+function savedProfileNames() {
+  try {
+    const profile = JSON.parse(localStorage.getItem('couple-game:profile:v1') || '{}');
+    return Array.isArray(profile.names) ? profile.names.map((name) => normalize(name)) : ['', '];
+  } catch {
+    return ['', '];
+  }
+}
+
 function secureRandomIndex(limit) {
   if (!Number.isInteger(limit) || limit <= 0) return 0;
   if (globalThis.crypto?.getRandomValues) {
@@ -64,7 +73,10 @@ function payloadFromText(value) {
   if (!text) return null;
   const markerIndex = text.indexOf(DUO_HASH);
   const encoded = markerIndex >= 0 ? text.slice(markerIndex + DUO_HASH.length) : text.replace(/^duo:/i, '');
-  return decodePayload(encoded.split(/[?&\s]/)[0]);
+  const payload = decodePayload(encoded.split(/[?&\s]/)[0]);
+  if (!payload || typeof payload !== 'object') return null;
+  if (payload.exp && Number(payload.exp) < Date.now()) return null;
+  return payload;
 }
 
 function payloadUrl(payload) {
@@ -168,6 +180,9 @@ function storyMode(coupleQuestions) {
   const { overlay, modal } = modalShell('v13-story-overlay');
   const p1 = addInput('Pessoa 1', 'Nome');
   const p2 = addInput('Pessoa 2', 'Nome do par');
+  const savedNames = savedProfileNames();
+  p1.input.value = savedNames[0] || '';
+  p2.input.value = savedNames[1] || '';
   const start = create('button', 'primary-button', 'Começar nossa história →');
   start.type = 'button';
   setViewBody(modal, [
@@ -456,6 +471,9 @@ function duoQrMode(coupleQuestions) {
   const { modal } = modalShell('v13-duo-overlay');
   const host = addInput('Seu nome', 'Quem está criando a rodada');
   const partner = addInput('Nome do par', 'Quem vai responder no outro celular');
+  const savedNames = savedProfileNames();
+  host.input.value = savedNames[0] || '';
+  partner.input.value = savedNames[1] || '';
   const start = create('button', 'primary-button', 'Criar rodada QR →');
   start.type = 'button';
   setViewBody(modal, [
@@ -478,7 +496,8 @@ function duoQrMode(coupleQuestions) {
       sid,
       host: names[0],
       partner: names[1],
-      q: { id: question.id, text: question.text, category: question.category, intensity: question.intensity }
+      q: { id: question.id, text: question.text, category: question.category, intensity: question.intensity },
+      exp: Date.now() + 12 * 60 * 60 * 1000
     };
     renderHostInvite(modal, payload, coupleQuestions);
   });
@@ -523,7 +542,8 @@ function renderDuoResponse(modal, invite, response, coupleQuestions) {
       sid: randomId(),
       host: invite.host,
       partner: invite.partner,
-      q: { id: question.id, text: question.text, category: question.category, intensity: question.intensity }
+      q: { id: question.id, text: question.text, category: question.category, intensity: question.intensity },
+      exp: Date.now() + 12 * 60 * 60 * 1000
     };
     renderHostInvite(modal, payload, coupleQuestions);
   });
@@ -617,7 +637,7 @@ function renderGuestInvite(payload) {
   send.addEventListener('click', () => {
     const answer = normalize(field.textarea.value);
     if (!answer) return field.textarea.focus();
-    const response = { v: 1, type: 'response', sid: payload.sid, from: payload.partner || 'Pessoa 2', answer };
+    const response = { v: 1, type: 'response', sid: payload.sid, from: payload.partner || 'Pessoa 2', answer, exp: Date.now() + 12 * 60 * 60 * 1000 };
     const url = payloadUrl(response);
     const qrWrap = create('div', 'v13-qr-wrap');
     const copy = create('button', 'secondary-button', 'Copiar resposta');
@@ -656,6 +676,7 @@ export function installCoupleV13(coupleQuestions, knowledgeQuestions) {
   const grid = create('div', 'v13-experience-grid');
   const modes = [
     {
+      id: 'story',
       icon: '📖',
       title: 'Modo História',
       text: '20 cartas em 5 capítulos: começo, cumplicidade, profundidade, futuro e uma última carta.',
@@ -663,6 +684,7 @@ export function installCoupleV13(coupleQuestions, knowledgeQuestions) {
       button: 'Viver nossa história →'
     },
     {
+      id: 'knowledge',
       icon: '🎯',
       title: 'Quanto você me conhece?',
       text: 'Um responde em segredo, o outro tenta adivinhar e o próprio casal decide a pontuação.',
@@ -670,6 +692,7 @@ export function installCoupleV13(coupleQuestions, knowledgeQuestions) {
       button: 'Começar disputa →'
     },
     {
+      id: 'duo',
       icon: '📲',
       title: 'Duo QR',
       text: 'Mande a pergunta para outro celular por QR e receba a resposta de volta sem criar conta.',
@@ -680,9 +703,11 @@ export function installCoupleV13(coupleQuestions, knowledgeQuestions) {
 
   modes.forEach((mode) => {
     const card = create('article', 'v13-experience-card');
+    card.dataset.v13Mode = mode.id;
     card.append(create('span', 'v13-experience-icon', mode.icon), create('h3', '', mode.title), create('p', '', mode.text));
     const button = create('button', 'secondary-button', mode.button);
     button.type = 'button';
+    button.dataset.v13Launch = mode.id;
     button.addEventListener('click', mode.action);
     card.append(button);
     grid.append(card);
