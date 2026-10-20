@@ -17,7 +17,7 @@ function savedProfileNames() {
     const profile = JSON.parse(localStorage.getItem('couple-game:profile:v1') || '{}');
     return Array.isArray(profile.names) ? profile.names.map((name) => normalize(name)) : ['', ''];
   } catch {
-    return ['', '];
+    return ['', ''];
   }
 }
 
